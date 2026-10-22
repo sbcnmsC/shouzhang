@@ -1,0 +1,51 @@
+name: Build unsigned iOS IPA
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "TravelJournal/**"
+      - "project.yml"
+      - ".github/workflows/build-ipa.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: macos-15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Select Xcode
+        run: |
+          xcodebuild -version
+          brew install xcodegen
+      - name: Generate Xcode project
+        run: xcodegen generate --spec project.yml
+      - name: Build for iPhone (unsigned)
+        run: |
+          xcodebuild -project TravelJournal.xcodeproj \
+            -scheme TravelJournal \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath build/DerivedData \
+            CODE_SIGNING_ALLOWED=NO \
+            build
+      - name: Package unsigned IPA
+        run: |
+          APP_PATH="build/DerivedData/Build/Products/Release-iphoneos/TravelJournal.app"
+          test -d "$APP_PATH"
+          mkdir -p build/Payload
+          cp -R "$APP_PATH" build/Payload/
+          cd build
+          /usr/bin/zip -qry TravelJournal-unsigned.ipa Payload
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: TravelJournal-unsigned-IPA
+          path: build/TravelJournal-unsigned.ipa
+          if-no-files-found: error
+          retention-days: 14
