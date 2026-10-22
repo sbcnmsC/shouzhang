@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>旅行手账本</title>
+<style>
+:root{--bg:#efe8da;--ink:#3b3228;--mute:#7a6d5e;--card:#fbf8f1;--line:#d9ccb5;--ac:#b7523a;
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1d1a16;--ink:#eee4d3;--mute:#a79a87;--card:#29241f;--line:#463d33;--ac:#e08a6f;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#1d1a16;--ink:#eee4d3;--mute:#a79a87;--card:#29241f;--line:#463d33;--ac:#e08a6f;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;overflow:hidden}
+input,textarea{-webkit-user-select:text;user-select:text}
+body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg);background-image:radial-gradient(rgba(128,110,80,.14) 1px,transparent 1.2px);background-size:22px 22px;color:var(--ink);font-family:"Noto Serif SC","Songti SC",serif;line-height:1.6}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:10}
+button,select,input,textarea{font:inherit;color:var(--ink)}
+.b{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:5px 13px;cursor:pointer;font-size:13px}
+.b:hover{border-color:var(--ac)}.b.p{background:var(--ac);border-color:var(--ac);color:#fff}
+#bw{width:min(100%,940px);padding:0 6px}
+#book{filter:drop-shadow(0 14px 22px rgba(0,0,0,.28))}
+/* pages */
+.pg{background:#fbf6ea;color:#3b3228;padding:24px 22px;overflow:hidden;position:relative;font-size:13px;
+  background-image:radial-gradient(#dccfb6 1px,transparent 1.2px);background-size:18px 18px}
+.pg.hard{color:#fff6e6;background-image:none;display:flex;align-items:center;justify-content:center;text-align:center;padding:0}
+.cv{position:absolute;inset:0;background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.05) 0 2px,transparent 2px 5px),linear-gradient(155deg,rgba(255,255,255,.16),rgba(0,0,0,.3))}
+.cv::after{content:"";position:absolute;left:0;top:0;bottom:0;width:18px;background:linear-gradient(90deg,rgba(0,0,0,.4),transparent)}
+.back .cv::after{left:auto;right:0;background:linear-gradient(270deg,rgba(0,0,0,.4),transparent)}
+.lb{position:relative;width:78%;background:#f7efdc;color:#3b3228;padding:36px 14px 30px;box-shadow:0 3px 12px rgba(0,0,0,.4);outline:1px solid #b9a77f;outline-offset:-7px}
+.lb::before{content:"";position:absolute;top:-11px;left:50%;width:92px;height:22px;transform:translateX(-50%) rotate(-3deg);background:rgba(255,255,255,.55);box-shadow:0 1px 2px rgba(0,0,0,.15)}
+.lb h2{font-family:"Kaiti SC","STKaiti","Ma Shan Zheng",cursive;font-weight:400;font-size:42px;line-height:1.15;margin:0 0 12px;color:var(--cc)}
+.lb .sub{letter-spacing:.22em;font-size:12px;color:#7a6d5e;border-top:1px solid #cdbfa5;padding-top:10px}
+.lb .ic{font-size:30px;color:var(--cc)}
+.st{position:absolute;right:24px;bottom:34px;width:72px;height:72px;border:2px dashed rgba(255,240,215,.7);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;line-height:1.4;letter-spacing:.15em;transform:rotate(-14deg);color:rgba(255,240,215,.9)}
+.cb{position:absolute;top:12px;right:12px;display:flex;gap:6px;z-index:2}
+.cb button{width:30px;height:30px;border-radius:50%;border:1px solid rgba(255,240,215,.6);background:rgba(0,0,0,.2);color:#fff6e6;cursor:pointer;padding:0;font-size:14px}
+.tb{position:absolute;left:12px;right:12px;bottom:30px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;z-index:2}
+.tb button{background:#fffaf0;border:1px solid #cdbfa5;border-radius:16px;padding:5px 13px;color:#3b3228;cursor:pointer;font-size:12px}
+.tb button.p{background:#b7523a;border-color:#b7523a;color:#fff}
+.hard .tb button{background:rgba(0,0,0,.22);border-color:rgba(255,240,215,.6);color:#fff6e6}
+.tl{max-height:330px;overflow:hidden}
+.pg button *,.hard button *{pointer-events:none}
+.addw{position:relative;width:76%;margin:110px auto 0}
+.addc{width:100%;height:130px;border:2px dashed #cdbfa5;border-radius:12px;background:transparent;color:#b7523a;cursor:pointer;font-size:15px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+.addc .plus{font-size:36px;line-height:1}
+.pen{position:absolute;right:-24px;bottom:-48px;background:transparent;border:0;padding:6px;cursor:pointer;transform:rotate(-28deg);transition:transform .2s;filter:drop-shadow(0 3px 3px rgba(0,0,0,.28))}
+.pen:hover{transform:rotate(-20deg) scale(1.06)}
+.tb button svg,.ed svg,.cb svg{vertical-align:-3px}
+.ed{display:flex;align-items:center;justify-content:center}
+.ls{margin-top:8px;max-height:50vh;overflow:auto}
+.li{display:flex;flex-direction:column;align-items:flex-start;width:100%;background:transparent;border:0;border-bottom:1px solid var(--line);padding:8px 2px;cursor:pointer;text-align:left}
+.li em{font-style:normal;font-size:12px;color:var(--mute)}.none{color:var(--mute);padding:10px 2px}
+.pg h3{font-family:"Kaiti SC","STKaiti","Ma Shan Zheng",cursive;font-weight:400;font-size:23px;margin:0 0 4px;color:#b7523a;padding-right:28px}
+.meta{color:#8d7f6b;font-size:12px;margin-bottom:8px}
+.tx{white-space:pre-wrap;line-height:1.75}
+.no{position:absolute;bottom:9px;left:0;right:0;text-align:center;font-size:11px;color:#a09380}
+.ed{position:absolute;top:10px;right:10px;width:26px;height:26px;border-radius:50%;border:1px solid #cdbfa5;background:#fffaf0;color:#8d7f6b;cursor:pointer;padding:0;font-size:13px}
+.ph{height:150px;background:#eadfc8;border:6px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.2);transform:rotate(-1deg);margin:6px 2px 12px;overflow:hidden;position:relative}
+.ph.big{height:290px}.ph img{width:100%;height:100%;object-fit:cover;display:block}.ph i{display:block;padding:60px 0;text-align:center;color:#a09380;font-style:normal}
+.row{display:flex;gap:8px;padding:5px 0;border-bottom:1px dashed #d9ccb5}
+.row b{font-weight:400;color:#b7523a}.row.done span{text-decoration:line-through;color:#a09380}
+.row em{margin-left:auto;font-style:normal;font-variant-numeric:tabular-nums}.row.tot{font-weight:600;border-bottom:2px solid #b7523a}
+.toc{display:flex;width:100%;gap:6px;background:transparent;border:0;border-bottom:1px dotted #cdbfa5;padding:5px 0;cursor:pointer;text-align:left;color:#3b3228}
+.toc span{flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}.toc em{font-style:normal;color:#a09380}
+.lines{height:300px;margin-top:10px;background-image:repeating-linear-gradient(transparent 0 27px,#d9ccb5 27px 28px)}
+.empty{color:#a09380;margin-top:20px}
+/* modal */
+.m{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;padding:14px;z-index:30}
+.m.on{display:flex}
+.pn{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;width:min(100%,440px);max-height:92vh;overflow:auto}
+.pn h2{margin:0 0 10px;font-size:18px}
+.pn label{display:block;font-size:12px;color:var(--mute);margin:10px 0 3px}
+.pn input,.pn select,.pn textarea{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:7px 10px;font-size:14px}
+.pn textarea{min-height:130px;resize:vertical}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}.acts .sp{flex:1}
+.sw{display:flex;gap:8px}.sw button{width:30px;height:30px;border-radius:50%;border:3px solid transparent;cursor:pointer;padding:0}.sw button.on{border-color:var(--ink)}
+#pv{max-height:110px;border-radius:6px;margin-top:6px;display:none}
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 16px;border-radius:20px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .25s;z-index:40;max-width:90%}
+#toast.on{opacity:1}
+</style>
+</head>
+<body>
+<input id="imp" type="file" accept=".json,application/json" hidden>
+<div id="bw"><div id="stage"></div></div>
+
+<div class="m" id="pm"><div class="pn">
+  <h2 id="pmT">编辑页面</h2>
+  <div class="two"><div><label>页面类型</label><select id="f_type"><option value="diary">日记</option><option value="photo">照片</option><option value="plan">清单 / 行程</option><option value="budget">花费</option></select></div>
+  <div><label>日期</label><input id="f_date" type="date"></div></div>
+  <label>标题</label><input id="f_title" maxlength="30">
+  <div class="two"><div><label>地点</label><input id="f_place" maxlength="20"></div>
+  <div><label>天气</label><select id="f_w"><option value="">—</option><option value="sun">晴 ☀️</option><option value="cloud">多云 ⛅</option><option value="rain">雨 🌧️</option><option value="snow">雪 ❄️</option></select></div></div>
+  <label id="f_tl">正文（建议 300 字以内，超出会被页面截掉）</label><textarea id="f_text" maxlength="700"></textarea>
+  <label>照片（自动压缩）</label><input id="f_img" type="file" accept="image/*"><img id="pv" alt="预览"><button class="b" id="rmImg" type="button" style="margin-top:6px;display:none">移除照片</button>
+  <div class="acts"><button class="b p" id="pSave" type="button">保存</button><button class="b" id="pCancel" type="button">取消</button><span class="sp"></span>
+  <button class="b" id="pUp" type="button">‹ 前移</button><button class="b" id="pDn" type="button">后移 ›</button><button class="b" id="pDel" type="button">删除</button></div>
+</div></div>
+
+<div class="m" id="tm"><div class="pn">
+  <h2 id="tmT">封面设置</h2>
+  <label>旅行名称</label><input id="t_title" maxlength="16">
+  <label>副标题（日期、同行人等）</label><input id="t_sub" maxlength="30">
+  <label>封面颜色</label><div class="sw" id="sw"></div>
+  <div class="acts"><button class="b p" id="tSave" type="button">保存</button><button class="b" id="tCancel" type="button">取消</button><span class="sp"></span><button class="b" id="tDel" type="button">删除这本旅行</button></div>
+</div></div>
+<div class="m" id="sm"><div class="pn"><input id="sq" placeholder="搜索标题、地点、正文" autocomplete="off"><div id="sl" class="ls"></div></div></div>
+<div class="m" id="lm"><div class="pn"><div id="ll" class="ls"></div><div class="acts"><button class="b p" id="lNew" type="button">＋ 新旅行</button></div></div></div>
+<div id="toast" role="status"></div>
+
+<script src="page-flip.browser.js"></script>
+<script>
+(function(){
+var K='travelbook.v1',COLS=['#9c4a36','#2f5d6e','#496b4a','#6b4f86','#2e3440'],WX={sun:'☀️',cloud:'⛅',rain:'🌧️',snow:'❄️'},TY={diary:'日记',photo:'照片',plan:'清单',budget:'花费'};
+var S,tr,pf,ed,te,sq='',mi=0,OFF=2,PEN='<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20l1-4L17 4l3 3L8 19z"/><path d="M14 7l3 3"/></svg>',BPEN='<svg viewBox="0 0 150 34" width="130" height="30"><path d="M2 17L26 8v18z" fill="#3b3228"/><rect x="26" y="6" width="104" height="22" rx="11" fill="#b7523a"/><rect x="26" y="6" width="104" height="8" rx="4" fill="rgba(255,255,255,.22)"/><rect x="40" y="6" width="9" height="22" fill="#d9b86c"/><rect x="128" y="10" width="20" height="14" rx="5" fill="#d9b86c"/></svg>',$=function(i){return document.getElementById(i)};
+function uid(){return Math.random().toString(36).slice(2,9)}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function toast(t){var e=$('toast');e.textContent=t;e.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(function(){e.classList.remove('on')},2400)}
+function sample(){return{cur:'s1',trips:[{id:'s1',title:'京都 · 红叶季',sub:'示例旅行 · 可随意修改',color:COLS[0],pages:[
+ {id:uid(),type:'plan',title:'行前清单',date:'',place:'',weather:'',text:'x 订机票和酒店\nx 办理 ICOCA 卡\n带转换插头\n下载离线地图\n预约清水寺夜间参拜',img:''},
+ {id:uid(),type:'diary',title:'抵达京都',date:'',place:'京都站',weather:'cloud',text:'傍晚到站，空气里有一点桂花味。\n先把行李放下，沿着鸭川走了一圈，晚饭吃了热腾腾的乌冬面。\n\n（点右上角 ✎ 就能改成你自己的内容。）',img:''},
+ {id:uid(),type:'budget',title:'花费记录',date:'',place:'',weather:'',text:'机票 2800\n住宿 1500\n交通卡 200\n晚饭 68',img:''},
+ {id:uid(),type:'photo',title:'清水寺的黄昏',date:'',place:'清水寺',weather:'sun',text:'点 ✎ 上传一张照片，会自动压缩后保存。',img:''}]}]}}
+function load(){try{S=JSON.parse(window.__NATIVE_DATA||localStorage.getItem(K))}catch(e){S=null}if(!S||!Array.isArray(S.trips)||!S.trips.length)S=sample()}
+function nat(m){try{window.webkit.messageHandlers.native.postMessage(m);return true}catch(e){return false}}
+function save(){var j=JSON.stringify(S);if(nat({a:'save',data:j}))return;try{localStorage.setItem(K,j)}catch(e){toast('存储空间不足：请删除部分照片，或先导出备份')}}
+function T(){return S.trips.filter(function(t){return t.id===S.cur})[0]||S.trips[0]}
+function col(t){return/^#[0-9a-f]{6}$/i.test(t.color)?t.color:COLS[0]}
+function meta(p){return[p.date,p.place,WX[p.weather]].filter(Boolean).map(esc).join(' · ')}
+function lines(s){return String(s||'').split('\n').filter(function(l){return l.trim()})}
+function ph(p,big){return'<div class="ph'+(big?' big':'')+'">'+(p.img?'<img alt="" src="'+esc(p.img)+'">':(big?'<i>未添加照片</i>':''))+'</div>'}
+function body(p){
+ if(p.type==='photo')return ph(p,1)+'<h3>'+esc(p.title)+'</h3><div class="meta">'+meta(p)+'</div><div class="tx">'+esc(p.text)+'</div>';
+ var h='<h3>'+esc(p.title)+'</h3><div class="meta">'+meta(p)+'</div>';
+ if(p.type==='plan')return h+lines(p.text).map(function(l){var d=/^x\s/i.test(l);return'<div class="row'+(d?' done':'')+'"><b>'+(d?'☑':'☐')+'</b><span>'+esc(d?l.slice(2):l)+'</span></div>'}).join('');
+ if(p.type==='budget'){var tot=0;h+=lines(p.text).map(function(l){var m=l.match(/^(.*?)[\s:：]+(-?\d+(?:\.\d+)?)\s*$/);if(!m)return'<div class="row"><span>'+esc(l)+'</span></div>';tot+=+m[2];return'<div class="row"><span>'+esc(m[1])+'</span><em>'+esc(m[2])+'</em></div>'}).join('');return h+'<div class="row tot"><span>合计</span><em>'+(Math.round(tot*100)/100)+'</em></div>'}
+ return h+(p.img?ph(p):'')+'<div class="tx">'+esc(p.text)+'</div>'}
+function render(idx,tp){
+ tr=T();var n=tr.pages.length,c=col(tr),L=[],M=Math.max(1,Math.ceil(n/8));OFF=1+M;if(tp!=null)idx=OFF+tp;
+ L.push('<div class="pg hard" style="background:'+c+';--cc:'+c+'"><div class="cv"></div><div class="lb"><h2>'+esc(tr.title)+'</h2><div class="sub">'+esc(tr.sub||'我的旅行')+'</div></div><div class="st">旅行<br>手账</div><div class="cb"><button type="button" data-act="lib" aria-label="切换旅行">⇄</button><button type="button" data-act="cover" aria-label="封面设置">'+PEN+'</button></div></div>');
+ for(var k=0;k<M;k++){var ch=tr.pages.slice(k*8,k*8+8);L.push('<div class="pg"><h3>目录'+(M>1?' · '+(k+1)+'/'+M:'')+'</h3><div class="tl">'+(n?ch.map(function(p,i){var g=k*8+i;return'<button type="button" class="toc" data-go="'+(g+OFF)+'"><span>'+esc(p.title||'未命名')+'</span><em>'+(g+OFF+1)+'</em></button>'}).join(''):'<div class="empty">还没有内容，点下方“添加页面”开始记录。</div>')+'</div><div class="tb">'+(k===0?'<button type="button" data-act="search">🔍 搜索</button>':'')+(k===M-1?'<button type="button" class="p" data-act="add">＋ 添加页面 '+PEN+'</button>':'')+'</div><span class="no">'+(k+2)+'</span></div>')}
+ tr.pages.forEach(function(p,i){L.push('<div class="pg">'+body(p)+'<button type="button" class="ed" data-ed="'+i+'" aria-label="编辑">'+PEN+'</button><span class="no">'+(i+OFF+1)+'</span></div>')});
+ L.push('<div class="pg"><div class="addw"><button type="button" class="addc" data-act="add"><span class="plus">＋</span>添加页面</button><button type="button" class="pen" data-act="add" aria-label="用笔写新的一页">'+BPEN+'</button></div><span class="no">'+(OFF+n+1)+'</span></div>');
+ if((M+n+3)%2)L.push('<div class="pg"><h3>随手记</h3><div class="lines"></div></div>');
+ L.push('<div class="pg hard back" style="background:'+c+';--cc:'+c+'"><div class="cv"></div><div class="lb"><div class="ic">❦</div><div class="sub">下一站，再见</div></div><div class="tb"><button type="button" data-act="exp">导出备份</button><button type="button" data-act="imp">导入</button><button type="button" data-act="theme">明 / 暗</button></div></div>');
+ if(pf){try{pf.destroy()}catch(e){}}
+ $('stage').innerHTML='<div id="book"></div>';var b=$('book');b.innerHTML=L.join('');
+ if(!window.St){b.innerHTML='<p style="padding:20px">翻页库加载失败，请检查网络后刷新。</p>';return}
+ pf=new St.PageFlip(b,{width:360,height:520,size:'stretch',minWidth:260,maxWidth:460,minHeight:380,maxHeight:660,showCover:true,maxShadowOpacity:.5,mobileScrollSupport:false,flippingTime:700,clickEventForward:true,usePortrait:true,startPage:Math.min(idx||0,L.length-1)});
+ pf.loadFromHTML(b.querySelectorAll('.pg'));pf.on('flip',upd);pf.on('init',upd);
+}
+function upd(){}
+/* page editor */
+function openP(i){var isNew=i<0;ed={i:i,isNew:isNew,p:isNew?{id:uid(),type:'diary',title:'',date:new Date().toISOString().slice(0,10),place:'',weather:'',text:'',img:''}:JSON.parse(JSON.stringify(tr.pages[i]))};
+ var p=ed.p;$('pmT').textContent=isNew?'添加页面':'编辑页面';
+ $('f_type').value=p.type;$('f_date').value=p.date||'';$('f_title').value=p.title;$('f_place').value=p.place;$('f_w').value=p.weather||'';$('f_text').value=p.text;$('f_img').value='';
+ ['pUp','pDn','pDel'].forEach(function(k){$(k).style.display=isNew?'none':''});$('pDel').textContent='删除';hint();pv();$('pm').classList.add('on')}
+function pv(){var v=$('pv');v.style.display=ed.p.img?'block':'none';v.src=ed.p.img||'';$('rmImg').style.display=ed.p.img?'':'none'}
+function hint(){var t=$('f_type').value;$('f_tl').textContent=t==='plan'?'每行一项，行首加 “x ” 表示已完成':t==='budget'?'每行一笔：项目 金额，例如 车票 1200':'正文（建议 300 字以内，超出会被页面截掉）'}
+function grab(){var p=ed.p;p.type=$('f_type').value;p.date=$('f_date').value;p.title=$('f_title').value.trim();p.place=$('f_place').value.trim();p.weather=$('f_w').value;p.text=$('f_text').value}
+function pic(f,cb){var u=URL.createObjectURL(f),im=new Image();im.onload=function(){var r=Math.min(1,900/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*r);c.height=Math.round(im.height*r);c.getContext('2d').drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);cb(c.toDataURL('image/jpeg',.72))};im.onerror=function(){toast('图片读取失败')};im.src=u}
+function closeP(){$('pm').classList.remove('on')}
+$('f_type').onchange=hint;
+$('f_img').onchange=function(){var f=this.files[0];if(f)pic(f,function(d){ed.p.img=d;pv()})};
+$('rmImg').onclick=function(){ed.p.img='';$('f_img').value='';pv()};
+$('pCancel').onclick=closeP;
+$('pSave').onclick=function(){grab();if(!ed.p.title)ed.p.title='无题';var a=tr.pages,i=ed.i;if(ed.isNew){a.push(ed.p);i=a.length-1}else a[i]=ed.p;save();closeP();render(0,i);toast('已保存')};
+function mv(d){grab();var a=tr.pages,i=ed.i,j=i+d;if(j<0||j>=a.length){toast('已经到头了');return}a[i]=ed.p;var t=a[i];a[i]=a[j];a[j]=t;save();closeP();render(0,j)}
+$('pUp').onclick=function(){mv(-1)};$('pDn').onclick=function(){mv(1)};
+function twoStep(btn,txt,fn){btn.onclick=function(){if(btn.dataset.arm){clearTimeout(btn.tm);btn.dataset.arm='';btn.textContent=txt;fn();return}btn.dataset.arm='1';btn.textContent='再点一次确认';btn.tm=setTimeout(function(){btn.dataset.arm='';btn.textContent=txt},3000)}}
+twoStep($('pDel'),'删除',function(){tr.pages.splice(ed.i,1);save();closeP();render(0,Math.max(0,ed.i-1));toast('已删除')});
+/* trip editor */
+function openT(isNew){te={isNew:isNew,t:isNew?{id:uid(),title:'',sub:'',color:COLS[Math.floor(Math.random()*COLS.length)],pages:[]}:tr};
+ $('tmT').textContent=isNew?'新的旅行':'封面设置';$('t_title').value=te.t.title;$('t_sub').value=te.t.sub;$('tDel').style.display=(isNew||S.trips.length<2)?'none':'';$('tDel').textContent='删除这本旅行';swatch();$('tm').classList.add('on')}
+function swatch(){$('sw').innerHTML=COLS.map(function(c){return'<button type="button" data-c="'+c+'" style="background:'+c+'" class="'+(c===te.t.color?'on':'')+'" aria-label="颜色"></button>'}).join('')}
+$('sw').onclick=function(e){var b=e.target.closest('button');if(b){te.t.color=b.dataset.c;swatch()}};
+$('tCancel').onclick=function(){$('tm').classList.remove('on')};
+$('tSave').onclick=function(){te.t.title=$('t_title').value.trim()||'未命名旅行';te.t.sub=$('t_sub').value.trim();if(te.isNew){S.trips.push(te.t);S.cur=te.t.id}save();$('tm').classList.remove('on');render(0)};
+twoStep($('tDel'),'删除这本旅行',function(){S.trips=S.trips.filter(function(t){return t.id!==te.t.id});S.cur=S.trips[0].id;save();$('tm').classList.remove('on');render(0);toast('已删除')});
+/* book clicks */
+$('stage').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;
+ if(b.dataset.ed!=null)openP(+b.dataset.ed);else if(b.dataset.go!=null)pf.flip(+b.dataset.go);else if(b.dataset.act)act(b.dataset.act)});
+addEventListener('keydown',function(e){if(/INPUT|TEXTAREA|SELECT/.test((e.target.tagName||'')))return;if(e.key==='ArrowLeft')pf&&pf.flipPrev();if(e.key==='ArrowRight')pf&&pf.flipNext()});
+/* search / library / backup */
+function act(a){if(a==='add')openP(-1);else if(a==='search')openS();else if(a==='lib')openL();else if(a==='cover')openT(false);else if(a==='exp')expo();else if(a==='imp')$('imp').click();else if(a==='theme')theme()}
+function openS(){$('sq').value='';sres();$('sm').classList.add('on');setTimeout(function(){$('sq').focus()},60)}
+function sres(){var q=$('sq').value.trim().toLowerCase(),h='';tr.pages.forEach(function(p,i){if(!q||[p.title,p.text,p.place,p.date].join(' ').toLowerCase().indexOf(q)>-1)h+='<button type="button" class="li" data-j="'+i+'"><b>'+esc(p.title||'未命名')+'</b><em>'+esc([p.place,TY[p.type]].filter(Boolean).join(' · '))+' · 第 '+(i+OFF+1)+' 页</em></button>'});$('sl').innerHTML=h||'<div class="none">没有找到</div>'}
+$('sq').oninput=sres;
+$('sl').onclick=function(e){var b=e.target.closest('button');if(b){$('sm').classList.remove('on');pf.flip(+b.dataset.j+OFF)}};
+function openL(){$('ll').innerHTML=S.trips.map(function(t){return'<button type="button" class="li" data-t="'+esc(t.id)+'"><b>'+esc(t.title)+'</b><em>'+esc(t.sub)+' · '+t.pages.length+' 页</em></button>'}).join('');$('lm').classList.add('on')}
+$('ll').onclick=function(e){var b=e.target.closest('button');if(!b)return;S.cur=b.dataset.t;save();$('lm').classList.remove('on');render(0)};
+$('lNew').onclick=function(){$('lm').classList.remove('on');openT(true)};
+['sm','lm','pm','tm'].forEach(function(k){$(k).addEventListener('click',function(e){if(e.target===this&&k!=='pm'&&k!=='tm')this.classList.remove('on')})});
+function expo(){if(nat({a:'export',data:JSON.stringify(S)}))return;var run=window.claude&&claude.use?claude.use('downloads'):Promise.resolve(null);
+ run.then(function(d){if(!d){toast('当前环境不支持导出');return}return d.save({filename:'travel-journal.json',data:JSON.stringify(S)})}).catch(function(e){if(!e||e.code!=='declined')toast('导出失败')})}
+function theme(){var r=document.documentElement,c=r.getAttribute('data-theme'),dk=c?c==='dark':matchMedia('(prefers-color-scheme: dark)').matches;r.setAttribute('data-theme',dk?'light':'dark')}
+$('imp').onchange=function(){var f=this.files[0];if(!f)return;var r=new FileReader();r.onload=function(){try{var d=JSON.parse(r.result);if(!d||!Array.isArray(d.trips))throw 0;
+ d.trips.forEach(function(t){if(!t||!Array.isArray(t.pages))return;t.id=uid();t.pages.forEach(function(p){p.id=uid()});S.trips.push(t)});S.cur=S.trips[S.trips.length-1].id;save();render(0);toast('已导入（与现有内容合并）')}catch(e){toast('文件格式不对')}};r.readAsText(f);this.value=''};
+load();render(0);
+})();
+</script>
+</body>
+</html>
